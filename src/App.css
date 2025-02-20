@@ -7,6 +7,24 @@
   background-color: #f5f5f5;
 }
 
+/* Add responsive styles */
+@media (max-width: 640px) {
+  .day-cell {
+    font-size: 0.75rem;
+  }
+  
+  .event-row {
+    font-size: 0.7rem;
+    padding: 0.1rem;
+  }
+  
+  .color-legend {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+}
+
 @media print {
   .App {
     background-color: white;

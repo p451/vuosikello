@@ -372,10 +372,10 @@ const AikajanaKalenteri = () => {
   const EventItem = ({ event, onClick, scale = 1 }) => (
     <div 
       onClick={onClick}
-      className={`event-row p-1 rounded text-sm cursor-pointer hover:opacity-80 ${getEventTypeColor(event.type)}`}
+      className={`event-row p-1 rounded text-xs sm:text-sm cursor-pointer hover:opacity-80 ${getEventTypeColor(event.type)}`}
       style={{ 
-        fontSize: `${scale * 0.875}rem`,
-        minHeight: `${scale * 1.5}rem`
+        fontSize: `${scale * 0.75}rem`,
+        minHeight: `${scale * 1.25}rem`
       }}
     >
       <span className="truncate block">{event.name}</span>
@@ -459,14 +459,14 @@ const AikajanaKalenteri = () => {
       }
 
       return (
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
           {['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'].map(day => (
             <div key={day} className="p-2 text-center font-bold bg-gray-100 day-header">
               {day}
             </div>
           ))}
           {days.map((day, index) => (
-            <div key={index} className="p-2 border min-h-32 day-cell">
+            <div key={index} className="p-1 sm:p-2 border min-h-[4rem] sm:min-h-32 day-cell text-xs sm:text-base">
               {day ? (
                 <>
                   <div className="font-bold mb-1">{day.getDate()}</div>
@@ -494,26 +494,22 @@ const AikajanaKalenteri = () => {
       return (
         <div className="grid grid-cols-7 gap-2">
           {weekDays.map((day, index) => (
-            <div key={index} className="border p-4 min-h-[400px]"> {/* Fixed missing closing curly brace */}
-              <div className="font-bold text-center mb-6 text-xl">
+            <div key={index} className="border p-2 sm:p-4 min-h-[300px] sm:min-h-[400px]">
+              <div className="font-bold text-center mb-4 sm:mb-6 text-base sm:text-xl">
                 {day.toLocaleDateString('fi-FI', { weekday: 'short' })}<br />
                 {day.getDate()}.{day.getMonth() + 1}.
               </div>
-              <div className="space-y-3">
-                {Object.values(events).flat().map((event) => {
-                  const startDate = new Date(event.startDate);
-                  const endDate = new Date(event.endDate);
-                  if (day >= startDate && day <= endDate &&
-                      (selectedLayer === 'all' || event.type === selectedLayer)) {
-                    return (
-                      <EventItem 
-                        event={event}
-                        onClick={() => handleEventClick(event)}
-                      />
-                    );
-                  }
-                  return null;
-                })}
+              <div className="space-y-2">
+                {/* Holidays - always show */}
+                <div className="event-row min-h-[1.5rem]">
+                  {renderDayEvents(events.pyhät, day, 'pyhät')}
+                </div>
+                {/* Other event types */}
+                {['general', 'bakery', 'gym'].map(type => (
+                  <div key={type} className="event-row min-h-[1.5rem]">
+                    {renderDayEvents(events[type === 'general' ? 'holidays' : type], day, type)}
+                  </div>
+                ))}
               </div>
             </div>
           ))}
@@ -524,20 +520,16 @@ const AikajanaKalenteri = () => {
         <div className="space-y-4">
           <h2 className="text-xl font-bold">{formatDate(currentDate)}</h2>
           <div className="space-y-2">
-            {Object.values(events).flat().map((event) => {
-              const startDate = new Date(event.startDate);
-              const endDate = new Date(event.endDate);
-              if (currentDate >= startDate && currentDate <= endDate &&
-                  (selectedLayer === 'all' || event.type === selectedLayer)) {
-                return (
-                  <EventItem 
-                    event={event}
-                    onClick={() => handleEventClick(event)}
-                  />
-                );
-              }
-              return null;
-            })}
+            {/* Holidays - always show */}
+            <div className="event-row min-h-[1.5rem]">
+              {renderDayEvents(events.pyhät, currentDate, 'pyhät')}
+            </div>
+            {/* Other event types */}
+            {['general', 'bakery', 'gym'].map(type => (
+              <div key={type} className="event-row min-h-[1.5rem]">
+                {renderDayEvents(events[type === 'general' ? 'holidays' : type], currentDate, type)}
+              </div>
+            ))}
           </div>
         </div>
       );
@@ -545,7 +537,7 @@ const AikajanaKalenteri = () => {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4">
+    <div className="w-full mx-auto p-2 sm:p-4 max-w-full lg:max-w-7xl">
       <style>
         {`
           @media print {
@@ -600,49 +592,63 @@ const AikajanaKalenteri = () => {
           }
         `}
       </style>
-      <div className="mb-4 space-y-4 no-print">
-        <div className="flex gap-4">
+      <div className="mb-4 space-y-2 sm:space-y-4 no-print">
+        <div className="flex flex-wrap gap-2">
           <button
-            className={`px-4 py-2 rounded ${viewMode === 'day' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`px-2 py-1 sm:px-4 sm:py-2 rounded text-sm sm:text-base ${
+              viewMode === 'day' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            }`}
             onClick={() => setViewMode('day')}
           >
             Päivä
           </button>
           <button
-            className={`px-4 py-2 rounded ${viewMode === 'week' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`px-2 py-1 sm:px-4 sm:py-2 rounded text-sm sm:text-base ${
+              viewMode === 'week' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            }`}
             onClick={() => setViewMode('week')}
           >
             Viikko
           </button>
           <button
-            className={`px-4 py-2 rounded ${viewMode === 'month' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`px-2 py-1 sm:px-4 sm:py-2 rounded text-sm sm:text-base ${
+              viewMode === 'month' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            }`}
             onClick={() => setViewMode('month')}
           >
             Kuukausi
           </button>
         </div>
         
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-2">
           <button
-            className={`px-4 py-2 rounded ${selectedLayer === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`px-2 py-1 sm:px-4 sm:py-2 rounded text-sm sm:text-base ${
+              selectedLayer === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            }`}
             onClick={() => setSelectedLayer('all')}
           >
             Kaikki
           </button>
           <button
-            className={`px-4 py-2 rounded ${selectedLayer === 'bakery' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`px-2 py-1 sm:px-4 sm:py-2 rounded text-sm sm:text-base ${
+              selectedLayer === 'bakery' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            }`}
             onClick={() => setSelectedLayer('bakery')}
           >
             Leipomo
           </button>
           <button
-            className={`px-4 py-2 rounded ${selectedLayer === 'gym' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`px-2 py-1 sm:px-4 sm:py-2 rounded text-sm sm:text-base ${
+              selectedLayer === 'gym' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            }`}
             onClick={() => setSelectedLayer('gym')}
           >
             Sali
           </button>
           <button
-            className={`px-4 py-2 rounded ${selectedLayer === 'general' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`px-2 py-1 sm:px-4 sm:py-2 rounded text-sm sm:text-base ${
+              selectedLayer === 'general' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            }`}
             onClick={() => setSelectedLayer('general')}
           >
             Yleinen
@@ -667,7 +673,7 @@ const AikajanaKalenteri = () => {
           </button>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <button
             onClick={() => navigate(-1)}
             className="px-4 py-2 rounded bg-gray-200"
@@ -689,8 +695,8 @@ const AikajanaKalenteri = () => {
         </div>
       </div>
 
-      <div className="border rounded-lg shadow-lg bg-white p-4 calendar-container">
-        <h2 className="text-center text-2xl font-bold mb-4 calendar-header">
+      <div className="border rounded-lg shadow-lg bg-white p-2 sm:p-4 calendar-container overflow-x-auto">
+        <h2 className="text-center text-lg sm:text-2xl font-bold mb-2 sm:mb-4 calendar-header">
           {currentDate.toLocaleDateString('fi-FI', { month: 'long', year: 'numeric' })}
         </h2>
         {renderContent()}
@@ -698,8 +704,8 @@ const AikajanaKalenteri = () => {
       </div>
 
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white p-4 sm:p-6 rounded-lg w-full max-w-md">
             <h3 className="text-lg font-bold mb-4">Lisää uusi tapahtuma</h3>
             <div className="space-y-4">
               <div>
