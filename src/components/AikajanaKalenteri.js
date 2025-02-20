@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 const AikajanaKalenteri = () => {
@@ -49,8 +48,11 @@ const AikajanaKalenteri = () => {
   });
 
   useEffect(() => {
-    fetchEvents();
-    initializeHolidays();
+    const init = async () => {
+      await fetchEvents();
+      await initializeHolidays();
+    };
+    init();
   }, []);
 
   const fetchEvents = async () => {
@@ -279,6 +281,11 @@ const AikajanaKalenteri = () => {
         const end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
         return { start, end };
       }
+      default:
+        return {
+          start: new Date(currentDate.setHours(0, 0, 0, 0)),
+          end: new Date(currentDate.setHours(23, 59, 59, 999))
+        };
     }
   };
 
