@@ -15,6 +15,10 @@ const AikajanaKalenteri = () => {
     type: 'general'
   });
 
+  // Add new state for detail view
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
   const defaultHolidays = [
     { id: 1, startDate: '2024-01-01', endDate: '2024-01-01', name: 'Uudenvuodenpäivä', type: 'pyhät' },
     { id: 2, startDate: '2024-01-06', endDate: '2024-01-06', name: 'Loppiainen', type: 'pyhät' },
@@ -188,8 +192,16 @@ const AikajanaKalenteri = () => {
     }
   };
 
+  // Update handleEventClick to show detail view first
   const handleEventClick = (event) => {
-    setEditEvent(event);
+    setSelectedEvent(event);
+    setShowDetailModal(true);
+  };
+
+  // Add handler for opening edit from detail view
+  const handleEditClick = () => {
+    setEditEvent(selectedEvent);
+    setShowDetailModal(false);
     setShowEditModal(true);
   };
 
@@ -369,16 +381,19 @@ const AikajanaKalenteri = () => {
     printWindow.print();
   };
 
-  const EventItem = ({ event, onClick, scale = 1 }) => (
+  // Update the EventItem component to handle small holiday indicators
+  const EventItem = ({ event, onClick, scale = 1, isHoliday = false }) => (
     <div 
       onClick={onClick}
-      className={`event-row p-1 rounded text-xs sm:text-sm cursor-pointer hover:opacity-80 ${getEventTypeColor(event.type)}`}
-      style={{ 
+      className={`event-row rounded cursor-pointer hover:opacity-80 ${getEventTypeColor(event.type)} ${
+        isHoliday ? 'h-2 w-2' : 'p-1 text-xs sm:text-sm'
+      }`}
+      style={!isHoliday ? { 
         fontSize: `${scale * 0.75}rem`,
         minHeight: `${scale * 1.25}rem`
-      }}
+      } : undefined}
     >
-      <span className="truncate block">{event.name}</span>
+      {!isHoliday && <span className="truncate block">{event.name}</span>}
     </div>
   );
 
@@ -414,6 +429,7 @@ const AikajanaKalenteri = () => {
     return new Date(year, month - 1, day);
   };
 
+  // Update renderDayEvents to handle holidays differently
   const renderDayEvents = (events, day, type) => {
     const matchingEvents = events.filter(event => {
       const startDate = parseLocalDate(event.startDate);
@@ -428,21 +444,24 @@ const AikajanaKalenteri = () => {
     if (matchingEvents.length === 0) return null;
   
     const scale = Math.max(0.6, 1 - (matchingEvents.length - 1) * 0.2);
+    const isHoliday = type === 'pyhät';
   
     return (
-      <div className="flex flex-col gap-0.5">
+      <div className={`flex ${isHoliday ? 'justify-center' : 'flex-col gap-0.5'}`}>
         {matchingEvents.map((event, idx) => (
           <EventItem 
             key={event.id}
             event={event}
             onClick={() => handleEventClick(event)}
             scale={scale}
+            isHoliday={isHoliday}
           />
         ))}
       </div>
     );
   };
 
+  // Update the month view rendering in renderContent
   const renderContent = () => {
     if (viewMode === 'month') {
       const { daysInMonth, firstDayWeekday } = getDaysInMonth(currentDate);
@@ -469,12 +488,13 @@ const AikajanaKalenteri = () => {
             <div key={index} className="p-1 sm:p-2 border min-h-[4rem] sm:min-h-32 day-cell text-xs sm:text-base">
               {day ? (
                 <>
-                  <div className="font-bold mb-1">{day.getDate()}</div>
-                  <div className="space-y-1 flex flex-col">
-                    {/* Holidays - always show */}
-                    <div className="event-row min-h-[1.5rem]">
+                  <div className="flex justify-between items-start">
+                    <div className="font-bold">{day.getDate()}</div>
+                    <div className="flex-shrink-0 w-4">
                       {renderDayEvents(events.pyhät, day, 'pyhät')}
                     </div>
+                  </div>
+                  <div className="space-y-1 flex flex-col mt-1">
                     {/* Other event types */}
                     {['general', 'bakery', 'gym'].map(type => (
                       <div key={type} className="event-row min-h-[1.5rem]">
@@ -703,6 +723,40 @@ const AikajanaKalenteri = () => {
         <ColorLegend />
       </div>
 
+      {/* Add Detail Modal */}
+      {showDetailModal && selectedEvent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white p-6 rounded-lg w-full max-w-2xl">
+            <div className={`p-4 rounded-t-lg ${getEventTypeColor(selectedEvent.type)}`}>
+              <h3 className="text-xl font-bold">{selectedEvent.name}</h3>
+              <p className="text-sm mt-2">
+                {new Date(selectedEvent.startDate).toLocaleDateString('fi-FI')} - {new Date(selectedEvent.endDate).toLocaleDateString('fi-FI')}
+              </p>
+              <p className="text-sm mt-1">
+                Tyyppi: {getEventTypeName(selectedEvent.type)}
+              </p>
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                className="px-4 py-2 bg-gray-200 rounded"
+                onClick={() => {
+                  setShowDetailModal(false);
+                  setSelectedEvent(null);
+                }}
+              >
+                Sulje
+              </button>
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded"
+                onClick={handleEditClick}
+              >
+                Muokkaa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white p-4 sm:p-6 rounded-lg w-full max-w-md">
@@ -799,19 +853,19 @@ const AikajanaKalenteri = () => {
                   onChange={e => setEditEvent({...editEvent, endDate: e.target.value})}
                 />
               </div>
-              {editEvent.type !== 'general' && (
-                <div>
-                  <label className="block mb-1">Tyyppi</label>
-                  <select
-                    className="w-full border p-2 rounded"
-                    value={editEvent.type}
-                    onChange={e => setEditEvent({...editEvent, type: e.target.value})}
-                  >
-                    <option value="bakery">Leipomo</option>
-                    <option value="gym">Sali</option>
-                  </select>
-                </div>
-              )}
+              <div>
+                <label className="block mb-1">Tyyppi</label>
+                <select
+                  className="w-full border p-2 rounded"
+                  value={editEvent.type}
+                  onChange={e => setEditEvent({...editEvent, type: e.target.value})}
+                >
+                  <option value="general">Yleinen</option>
+                  <option value="bakery">Leipomo</option>
+                  <option value="gym">Sali</option>
+                  <option value="pyhät">Pyhäpäivä</option>
+                </select>
+              </div>
               <div className="flex justify-between">
                 <button
                   className="px-4 py-2 bg-red-500 text-white rounded"
