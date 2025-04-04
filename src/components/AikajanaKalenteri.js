@@ -48,7 +48,8 @@ const AikajanaKalenteri = () => {
     pyhät: [],
     holidays: [],
     bakery: [],
-    gym: []
+    gym: [],
+    erikoistuotteet: []  // Add new event type
   });
 
   useEffect(() => {
@@ -72,7 +73,8 @@ const AikajanaKalenteri = () => {
         pyhät: [],
         holidays: [],
         bakery: [],
-        gym: []
+        gym: [],
+        erikoistuotteet: []  // Add new event type
       };
 
       data.forEach(event => {
@@ -254,6 +256,8 @@ const AikajanaKalenteri = () => {
         return 'bg-yellow-200';
       case 'gym':
         return 'bg-blue-200';
+      case 'erikoistuotteet':
+        return 'bg-green-200';
       default:
         return 'bg-gray-200';
     }
@@ -269,6 +273,8 @@ const AikajanaKalenteri = () => {
         return 'Leipomo';
       case 'gym':
         return 'Sali';
+      case 'erikoistuotteet':
+        return 'Erikoistuotteet';
       default:
         return type;
     }
@@ -305,7 +311,7 @@ const AikajanaKalenteri = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
   
-    const types = ['pyhät', 'general', 'bakery', 'gym'];
+    const types = ['pyhät', 'general', 'bakery', 'gym', 'erikoistuotteet'];
     const { start, end } = getViewDateRange();
     const viewTitle = {
       day: 'päivän',
@@ -335,6 +341,7 @@ const AikajanaKalenteri = () => {
             .general { background-color: #d6bcfa !important; }
             .bakery { background-color: #faf089 !important; }
             .gym { background-color: #90cdf4 !important; }
+            .erikoistuotteet { background-color: #9ae6b4 !important; }
             @media print {
               @page { margin: 1cm; }
               .event-item { 
@@ -414,6 +421,10 @@ const AikajanaKalenteri = () => {
       <div className="legend-item">
         <div className="legend-color w-4 h-4 rounded bg-blue-200"></div>
         <span className="ml-2">Sali</span>
+      </div>
+      <div className="legend-item">
+        <div className="legend-color w-4 h-4 rounded bg-green-200"></div>
+        <span className="ml-2">Erikoistuotteet</span>
       </div>
     </div>
   );
@@ -496,7 +507,7 @@ const AikajanaKalenteri = () => {
                   </div>
                   <div className="space-y-1 flex flex-col mt-1">
                     {/* Other event types */}
-                    {['general', 'bakery', 'gym'].map(type => (
+                    {['general', 'bakery', 'gym', 'erikoistuotteet'].map(type => (
                       <div key={type} className="event-row min-h-[1.5rem]">
                         {renderDayEvents(events[type === 'general' ? 'holidays' : type], day, type)}
                       </div>
@@ -525,7 +536,7 @@ const AikajanaKalenteri = () => {
                   {renderDayEvents(events.pyhät, day, 'pyhät')}
                 </div>
                 {/* Other event types */}
-                {['general', 'bakery', 'gym'].map(type => (
+                {['general', 'bakery', 'gym', 'erikoistuotteet'].map(type => (
                   <div key={type} className="event-row min-h-[1.5rem]">
                     {renderDayEvents(events[type === 'general' ? 'holidays' : type], day, type)}
                   </div>
@@ -545,7 +556,7 @@ const AikajanaKalenteri = () => {
               {renderDayEvents(events.pyhät, currentDate, 'pyhät')}
             </div>
             {/* Other event types */}
-            {['general', 'bakery', 'gym'].map(type => (
+            {['general', 'bakery', 'gym', 'erikoistuotteet'].map(type => (
               <div key={type} className="event-row min-h-[1.5rem]">
                 {renderDayEvents(events[type === 'general' ? 'holidays' : type], currentDate, type)}
               </div>
@@ -800,6 +811,7 @@ const AikajanaKalenteri = () => {
                   <option value="bakery">Leipomo</option>
                   <option value="gym">Sali</option>
                   <option value="pyhät">Pyhäpäivä</option>
+                  <option value="erikoistuotteet">Erikoistuotteet</option>
                 </select>
               </div>
               <div className="flex justify-end gap-2">
@@ -864,6 +876,7 @@ const AikajanaKalenteri = () => {
                   <option value="bakery">Leipomo</option>
                   <option value="gym">Sali</option>
                   <option value="pyhät">Pyhäpäivä</option>
+                  <option value="erikoistuotteet">Erikoistuotteet</option>
                 </select>
               </div>
               <div className="flex justify-between">
