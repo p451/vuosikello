@@ -663,38 +663,20 @@ const AikajanaKalenteri = () => {
         </div>
         
         <div className="flex flex-wrap gap-2">
-          <button
-            className={`px-2 py-1 sm:px-4 sm:py-2 rounded text-sm sm:text-base ${
-              selectedLayer === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-            }`}
-            onClick={() => setSelectedLayer('all')}
+          {/* Replace buttons with dropdown */}
+          <select
+            className="px-4 py-2 rounded bg-white border border-gray-300"
+            value={selectedLayer}
+            onChange={(e) => setSelectedLayer(e.target.value)}
           >
-            Kaikki
-          </button>
-          <button
-            className={`px-2 py-1 sm:px-4 sm:py-2 rounded text-sm sm:text-base ${
-              selectedLayer === 'bakery' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-            }`}
-            onClick={() => setSelectedLayer('bakery')}
-          >
-            Leipomo
-          </button>
-          <button
-            className={`px-2 py-1 sm:px-4 sm:py-2 rounded text-sm sm:text-base ${
-              selectedLayer === 'gym' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-            }`}
-            onClick={() => setSelectedLayer('gym')}
-          >
-            Sali
-          </button>
-          <button
-            className={`px-2 py-1 sm:px-4 sm:py-2 rounded text-sm sm:text-base ${
-              selectedLayer === 'general' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-            }`}
-            onClick={() => setSelectedLayer('general')}
-          >
-            Yleinen
-          </button>
+            <option value="all">Näytä kaikki</option>
+            <option value="bakery">Leipomo</option>
+            <option value="gym">Sali</option>
+            <option value="general">Yleinen</option>
+            <option value="erikoistuotteet">Erikoistuotteet</option>
+            <option value="kitchen">Keittiö</option>
+          </select>
+
           <button
             onClick={() => window.print()}
             className="px-4 py-2 rounded bg-green-500 text-white"
