@@ -50,7 +50,8 @@ const AikajanaKalenteri = () => {
     bakery: [],
     gym: [],
     erikoistuotteet: [],
-    kitchen: []  // Add kitchen event type
+    kitchen: [],
+    intown: []  // Add InTown event type
   });
 
   useEffect(() => {
@@ -76,7 +77,8 @@ const AikajanaKalenteri = () => {
         bakery: [],
         gym: [],
         erikoistuotteet: [],  // Add new event type
-        kitchen: []  // Add new event type
+        kitchen: [],  // Add new event type
+        intown: []  // Add new event type
       };
 
       data.forEach(event => {
@@ -262,6 +264,8 @@ const AikajanaKalenteri = () => {
         return 'bg-green-200';
       case 'kitchen':
         return 'bg-orange-200';
+      case 'intown':
+        return 'bg-gray-400';
       default:
         return 'bg-gray-200';
     }
@@ -281,6 +285,8 @@ const AikajanaKalenteri = () => {
         return 'Erikoistuotteet';
       case 'kitchen':
         return 'Keittiö';
+      case 'intown':
+        return 'InTown';
       default:
         return type;
     }
@@ -317,7 +323,7 @@ const AikajanaKalenteri = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
   
-    const types = ['pyhät', 'general', 'bakery', 'gym', 'erikoistuotteet', 'kitchen'];
+    const types = ['pyhät', 'general', 'bakery', 'gym', 'erikoistuotteet', 'kitchen', 'intown'];
     const { start, end } = getViewDateRange();
     const viewTitle = {
       day: 'päivän',
@@ -349,6 +355,7 @@ const AikajanaKalenteri = () => {
             .gym { background-color: #90cdf4 !important; }
             .erikoistuotteet { background-color: #9ae6b4 !important; }
             .kitchen { background-color: #fed7aa !important; }
+            .intown { background-color: #a0aec0 !important; }
             @media print {
               @page { margin: 1cm; }
               .event-item { 
@@ -437,6 +444,10 @@ const AikajanaKalenteri = () => {
         <div className="legend-color w-4 h-4 rounded bg-orange-200"></div>
         <span className="ml-2">Keittiö</span>
       </div>
+      <div className="legend-item">
+        <div className="legend-color w-4 h-4 rounded bg-gray-400"></div>
+        <span className="ml-2">InTown</span>
+      </div>
     </div>
   );
 
@@ -518,7 +529,7 @@ const AikajanaKalenteri = () => {
                   </div>
                   <div className="space-y-1 flex flex-col mt-1">
                     {/* Other event types */}
-                    {['general', 'bakery', 'gym', 'erikoistuotteet', 'kitchen'].map(type => (
+                    {['general', 'bakery', 'gym', 'erikoistuotteet', 'kitchen', 'intown'].map(type => (
                       <div key={type} className="event-row min-h-[1.5rem]">
                         {renderDayEvents(events[type === 'general' ? 'holidays' : type], day, type)}
                       </div>
@@ -547,7 +558,7 @@ const AikajanaKalenteri = () => {
                   {renderDayEvents(events.pyhät, day, 'pyhät')}
                 </div>
                 {/* Other event types */}
-                {['general', 'bakery', 'gym', 'erikoistuotteet', 'kitchen'].map(type => (
+                {['general', 'bakery', 'gym', 'erikoistuotteet', 'kitchen', 'intown'].map(type => (
                   <div key={type} className="event-row min-h-[1.5rem]">
                     {renderDayEvents(events[type === 'general' ? 'holidays' : type], day, type)}
                   </div>
@@ -567,7 +578,7 @@ const AikajanaKalenteri = () => {
               {renderDayEvents(events.pyhät, currentDate, 'pyhät')}
             </div>
             {/* Other event types */}
-            {['general', 'bakery', 'gym', 'erikoistuotteet', 'kitchen'].map(type => (
+            {['general', 'bakery', 'gym', 'erikoistuotteet', 'kitchen', 'intown'].map(type => (
               <div key={type} className="event-row min-h-[1.5rem]">
                 {renderDayEvents(events[type === 'general' ? 'holidays' : type], currentDate, type)}
               </div>
@@ -675,6 +686,7 @@ const AikajanaKalenteri = () => {
             <option value="general">Yleinen</option>
             <option value="erikoistuotteet">Erikoistuotteet</option>
             <option value="kitchen">Keittiö</option>
+            <option value="intown">InTown</option>
           </select>
 
           <button
@@ -806,6 +818,7 @@ const AikajanaKalenteri = () => {
                   <option value="pyhät">Pyhäpäivä</option>
                   <option value="erikoistuotteet">Erikoistuotteet</option>
                   <option value="kitchen">Keittiö</option>
+                  <option value="intown">InTown</option>
                 </select>
               </div>
               <div className="flex justify-end gap-2">
@@ -872,6 +885,7 @@ const AikajanaKalenteri = () => {
                   <option value="pyhät">Pyhäpäivä</option>
                   <option value="erikoistuotteet">Erikoistuotteet</option>
                   <option value="kitchen">Keittiö</option>
+                  <option value="intown">InTown</option>
                 </select>
               </div>
               <div className="flex justify-between">
