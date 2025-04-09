@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { fetchComments, addComment, deleteComment } from '../utils/commentsHandler';
 
 const AikajanaKalenteri = () => {
   const [viewMode, setViewMode] = useState('month');
@@ -18,6 +19,11 @@ const AikajanaKalenteri = () => {
   // Add new state for detail view
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+
+  // Add new states for comments
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
+  const [commentUserName, setCommentUserName] = useState('');
 
   const defaultHolidays = [
     { id: 1, startDate: '2024-01-01', endDate: '2024-01-01', name: 'Uudenvuodenpäivä', type: 'pyhät' },
@@ -198,10 +204,44 @@ const AikajanaKalenteri = () => {
     }
   };
 
-  // Update handleEventClick to show detail view first
-  const handleEventClick = (event) => {
+  // Add function to load comments
+  const loadComments = async (eventId) => {
+    try {
+      const commentData = await fetchComments(eventId);
+      setComments(commentData);
+    } catch (error) {
+      console.error('Error loading comments:', error);
+    }
+  };
+
+  // Update handleEventClick to load comments
+  const handleEventClick = async (event) => {
     setSelectedEvent(event);
     setShowDetailModal(true);
+    await loadComments(event.id);
+  };
+
+  // Add function to handle comment submission
+  const handleCommentSubmit = async () => {
+    if (!newComment.trim() || !commentUserName.trim()) return;
+    
+    try {
+      const comment = await addComment(selectedEvent.id, newComment, commentUserName);
+      setComments(prev => [...prev, comment]);
+      setNewComment('');
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    }
+  };
+
+  // Add function to handle comment deletion
+  const handleCommentDelete = async (commentId) => {
+    try {
+      await deleteComment(commentId);
+      setComments(prev => prev.filter(comment => comment.id !== commentId));
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+    }
   };
 
   // Add handler for opening edit from detail view
@@ -752,12 +792,64 @@ const AikajanaKalenteri = () => {
                 Tyyppi: {getEventTypeName(selectedEvent.type)}
               </p>
             </div>
+            
+            {/* Comments section */}
+            <div className="mt-4 border-t pt-4">
+              <h4 className="font-bold mb-4">Kommentit</h4>
+              
+              <div className="mb-4 space-y-2">
+                {comments.map(comment => (
+                  <div key={comment.id} className="bg-gray-50 p-3 rounded flex justify-between items-start">
+                    <div>
+                      <p className="text-sm font-bold">{comment.created_by}</p>
+                      <p>{comment.content}</p>
+                      <p className="text-xs text-gray-500">
+                        {new Date(comment.created_at).toLocaleString('fi-FI')}
+                      </p>
+                    </div>
+                    <button 
+                      onClick={() => handleCommentDelete(comment.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      Poista
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  placeholder="Nimesi"
+                  className="w-full border p-2 rounded"
+                  value={commentUserName}
+                  onChange={e => setCommentUserName(e.target.value)}
+                />
+                <textarea
+                  placeholder="Kirjoita kommentti..."
+                  className="w-full border p-2 rounded"
+                  value={newComment}
+                  onChange={e => setNewComment(e.target.value)}
+                  rows="3"
+                />
+                <button
+                  onClick={handleCommentSubmit}
+                  className="px-4 py-2 bg-blue-500 text-white rounded"
+                  disabled={!newComment.trim() || !commentUserName.trim()}
+                >
+                  Lähetä kommentti
+                </button>
+              </div>
+            </div>
+
             <div className="mt-6 flex justify-end gap-2">
               <button
                 className="px-4 py-2 bg-gray-200 rounded"
                 onClick={() => {
                   setShowDetailModal(false);
                   setSelectedEvent(null);
+                  setComments([]);
+                  setNewComment('');
                 }}
               >
                 Sulje
